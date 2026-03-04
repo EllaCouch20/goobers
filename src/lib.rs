@@ -1,100 +1,47 @@
-use pelican_ui::{Component, Context, Plugins, Plugin, maverick_start, start, Application, PelicanEngine, MaverickOS};
-use pelican_ui::drawable::{Drawable, Component};
-use pelican_ui_std::{Stack, Interface, AppPage};
-use pelican_ui::layout::{Area, SizeRequest, Layout};
-use pelican_ui::events::{Event, OnEvent, TickEvent};
-use pelican_ui::runtime::{Services, ServiceList};
-use profiles::plugin::ProfilePlugin;
-use profiles::service::{Name, ProfileService};
-use profiles::components::AvatarContentProfiles;
-use messages::plugin::MessagesPlugin;
-use std::rc::Rc;
-use std::cell::RefCell;
+use prism::layout::{Area, SizeRequest, Size, Offset, Layout, Padding, Stack, Wrap, Row};
+use prism::display::Bin;
+use prism::event::{OnEvent, Event};
+use prism::drawable::Component;
+use crate::components::button::ButtonSize;
+use crate::components::text::{TextStyle, Text, TextSize};
+use crate::components::{Rectangle, TextInput};
+use prism::{Request, Context, drawables, canvas::{self, Align}};
+use ptsd::utils::ValidationFn;
+use crate::components::button::PrimaryButton;
+use crate::components::button::SecondaryButton;
+use crate::components::text::ExpandableText;
+use crate::canvas::{RgbaImage, Image, ShapeType, Shape};
+use crate::interface::general::{Page, Content, Header, Bumper, Interface};
+use crate::interface::navigation::AppPage;
+use crate::interface::navigation::{Flow, FlowContainer};
+use crate::interface::navigation::NavigationEvent;
+use crate::interface::navigation::RootInfo;
 
-use bitcoin::service::BDKService;
-use messages::service::{RoomsService, Rooms};
+use ptsd::colors;
+use std::collections::HashMap;
+use crate::pages::small_story::SmallStory;
+use std::sync::Arc;
 
-use bitcoin::pages::*;
-use bitcoin::components::IconButtonBitcoin;
-use messages::pages::*;
-use messages::components::IconButtonMessages;
-use profiles::pages::*;
-use profiles::components::IconButtonProfiles;
+use crate::classes::{Story, Level, Language};
 
-// mod bdk;
-// use bdk::BDKPlugin;
-mod msg;
-// use msg::MSGPlugin;
-// use ucp_rust::UCPPlugin;
+mod stories;
+mod classes;
+mod pages;
+mod layout;
+mod utils;
+mod components;
+mod interface;
+mod theme;
+use theme::Button as ButtonColors;
 
-pub struct MyApp;
-impl Services for MyApp {
-    fn services() -> ServiceList {
-        let mut services = ServiceList::default();
-        services.insert::<ProfileService>();
-        services.insert::<BDKService>();
-        services.insert::<RoomsService>();
-        services
-    }
-}
+use crate::theme::{Color, Theme, ButtonColorScheme};
 
-impl Plugins for MyApp {
-    fn plugins(ctx: &mut Context) -> Vec<Box<dyn Plugin>> {
-        vec![Box::new(ProfilePlugin::new(ctx)), Box::new(MessagesPlugin::new(ctx))]
-    }
-}
-
-impl Application for MyApp {
-    async fn new(ctx: &mut Context) -> Box<dyn Drawable> { App::new(ctx) }
-}
-
-start!(MyApp);
-
-#[derive(Debug, Component)]
-pub struct App(Stack, Interface);
-
-impl App {
-    pub fn new(ctx: &mut Context) -> Box<Self> {
-        let account_actions = Rc::new(RefCell::new(vec![IconButtonBitcoin::new(ctx), IconButtonMessages::new(ctx), IconButtonProfiles::block(ctx)]));
-        let messages_actions = account_actions.clone();
-        let navigation = vec![
-            ("wallet", "Bitcoin".to_string(), None, Some(Box::new(|ctx: &mut Context| Box::new(BitcoinHome::new(ctx)) as Box<dyn AppPage>) as Box<dyn FnMut(&mut Context) -> Box<dyn AppPage>>)),
-            ("messages", "Messages".to_string(), None, Some(Box::new(move |ctx: &mut Context| Box::new(MessagesHome::new(ctx, messages_actions.clone())) as Box<dyn AppPage>) as Box<dyn FnMut(&mut Context) -> Box<dyn AppPage>>)),
-            // ("door", "Rooms".to_string(), None, Some(Box::new(move |ctx: &mut Context| Box::new(RoomsHome::new(ctx, account_actions.clone())) as Box<dyn AppPage>) as Box<dyn FnMut(&mut Context) -> Box<dyn AppPage>>)),
-        ];
-
-        let navigation_b = vec![
-            ("profile", "My Account".to_string(), Some(AvatarContentProfiles::default()), Some(Box::new(|ctx: &mut Context| Box::new(Account::new(ctx)) as Box<dyn AppPage>) as Box<dyn FnMut(&mut Context) -> Box<dyn AppPage>>))
-        ];
-
-        let home = BitcoinHome::new(ctx);
-        let interface = Interface::new(ctx, Box::new(home), Some((0_usize, navigation, navigation_b)), None);
-        Box::new(App(Stack::default(), interface))
-    }
-}
-
-impl OnEvent for App {
-    fn on_event(&mut self, ctx: &mut Context, event: &mut dyn Event) -> bool {
-        if let Some(TickEvent) = event.downcast_ref::<TickEvent>() {
-            let rooms = &ctx.state().get_or_default::<Rooms>().0;
-            let any_unread = rooms.iter().any(|r| r.1.2.iter().any(|m| !m.is_read()));
-            if let Some(mobile) = self.1.mobile() {
-                if let Some(n) = mobile.navigator().as_mut() { n.inner().buttons()[1].show_flair(any_unread); }
-            } else if let Some(desktop) = self.1.desktop() {
-                if let Some(n) = desktop.navigator().as_mut() { n.buttons()[1].show_flair_left(any_unread); }
-            }
-
-            if ctx.state().get::<Name>().is_some() {
-                self.1.desktop().as_mut().map(|d| d.navigator().as_mut().map(|nav| {
-                    let me = ProfilePlugin::me(ctx).0;
-                    nav.update_avatar(AvatarContentProfiles::from_orange_name(ctx, &me));
-
-                    // let username = ProfilePlugin::username(ctx);
-                    // let username = NameGenerator::display_name(username);
-                    // nav.update_username(username)
-                }));
-            }
-        }
-        true
-    }
-}
+ramp::run!{|ctx: &mut Context, assets: Assets| {
+    let theme = Theme::dark(assets.all(), Color::from_hex("#EE3658", 255));
+    // let home = NewWord::new(&assets, &theme, Word::new("naam", "Name", "name", "Mijn naam is Anna.", WordClass::Noun(NounForms { plural: "namen".into(), diminutive: None }), Language::Dutch));
+    let home = SmallStory::new(&theme, Story::Cinderella, Level::A1, Language::Dutch, 0);
+    let home = RootInfo::icon("explore", "My Tickets", Box::new(home));
+    Interface::new(&theme, vec![home], Box::new(|page: &mut Box<dyn Drawable>, ctx: &mut Context, e: Box<dyn Event>| {
+        vec![e]
+    }))
+}}
