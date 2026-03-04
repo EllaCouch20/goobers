@@ -322,8 +322,9 @@ impl Bumper {
         on_click: impl FnMut(&mut Context, &Theme) + Clone + 'static, 
         secondary: Option<(String, Box<dyn Callback>)>, 
     ) -> Self {
-        let mut content = drawables![PrimaryButton::new(theme, label.unwrap_or("Continue"), Box::new(on_click))];
+        let mut content: Vec<Box<dyn Drawable>> = Vec::new();
         if let Some((l, c)) = secondary { content.push(Box::new(SecondaryButton::large(theme, &l, c))); }
+        content.push(Box::new(PrimaryButton::new(theme, label.unwrap_or("Continue"), Box::new(on_click))));
         let (layout, background) = Self::layout(theme);
         Bumper { layout, background, content: BumperContent::new(content) }
     }
@@ -401,7 +402,7 @@ impl Event for InterfaceEvent {
 pub struct Screen(Stack, Pages, Option<Bin<Stack, Rectangle>>);
 
 impl OnEvent for Screen {
-    fn on_event(&mut self, ctx: &mut Context, sized: &SizedTree, mut event: Box<dyn Event>) -> Vec<Box<dyn Event>> {
+    fn on_event(&mut self, _ctx: &mut Context, _sized: &SizedTree, mut event: Box<dyn Event>) -> Vec<Box<dyn Event>> {
         if let Some(NavigationEvent::Push(_, v)) = event.downcast_mut::<NavigationEvent>() {*v = vec![1];}
         vec![event]
     }

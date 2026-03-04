@@ -216,8 +216,8 @@ impl Button {
     pub(crate) fn new(
         content: Vec<Box<dyn Drawable>>,
         size: ButtonSize,
-        width: ButtonWidth,
-        offset: Offset,
+        _width: ButtonWidth,
+        _offset: Offset,
         colors: ButtonColorScheme,
         pressed: bool,
     ) -> Self {

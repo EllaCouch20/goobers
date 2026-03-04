@@ -1,25 +1,15 @@
 
-use prism::layout::{Area, SizeRequest, Size, Offset, Layout, Padding, Stack, Wrap, Row};
+use prism::layout::{Size, Offset, Padding, Stack, Wrap, Row};
 use prism::display::Bin;
-use prism::event::{OnEvent, Event};
+use prism::event::OnEvent;
 use prism::drawable::Component;
-use crate::components::button::ButtonSize;
 use crate::components::text::{TextStyle, Text, TextSize};
-use crate::components::{Rectangle, TextInput};
-use prism::{Request, Context, drawables, canvas::{self, Align}};
-use ptsd::utils::ValidationFn;
-use crate::components::button::PrimaryButton;
+use prism::{Request, Context, canvas::Align};
 use crate::components::button::SecondaryButton;
-use crate::components::text::ExpandableText;
 use crate::canvas::{RgbaImage, Image, ShapeType, Shape};
-use crate::interface::general::{Page, Content, Header, Bumper, Interface};
-use crate::interface::navigation::AppPage;
-use crate::interface::navigation::{Flow, FlowContainer};
 use crate::interface::navigation::NavigationEvent;
-use crate::interface::navigation::RootInfo;
-use crate::classes::{Story, Level, Language, Word};
+use crate::classes::{Language, Word};
 use crate::pages::definition::WordDefinitionFlow;
-use ptsd::colors;
 use crate::theme::{Theme, Color};
 use std::sync::Arc;
 
@@ -70,7 +60,6 @@ impl OnEvent for StorySentence {}
 impl StorySentence {
     pub fn new(theme: &Theme, words: Vec<Word>) -> Self {
         StorySentence(Wrap::start(8.0, 8.0), words.into_iter().map(|word| SecondaryButton::medium(theme, &word.word.clone(), None, None, move |ctx: &mut Context, theme: &Theme| {
-            println!("Pressed {:?}", word);
             let flow = WordDefinitionFlow::new(theme, word.clone());
             ctx.send(Request::event(NavigationEvent::push(flow)))
         })).collect::<Vec<_>>())

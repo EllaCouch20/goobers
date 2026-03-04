@@ -9,7 +9,7 @@ use ptsd::interactions;
 
 pub use ptsd::navigation::{NavigationEvent, AppPage, Flow, FlowContainer};
 
-use crate::theme::{self, Theme, Color};
+use crate::theme::{Theme, Color};
 use crate::theme::Variant;
 use crate::components::{Icon, AspectRatioImage, Rectangle};
 use crate::components::text::{TextStyle, Text};

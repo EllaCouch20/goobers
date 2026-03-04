@@ -1,25 +1,18 @@
-use prism::layout::{Area, SizeRequest, Size, Offset, Layout, Padding, Stack, Wrap, Row};
+use prism::layout::{Size, Offset, Padding, Stack};
 use prism::display::Bin;
-use prism::event::{OnEvent, Event};
+use prism::event::OnEvent;
 use prism::drawable::Component;
-use crate::components::button::ButtonSize;
-use crate::components::text::{TextStyle, Text, TextSize};
-use crate::components::{Rectangle, TextInput};
-use prism::{Request, Context, drawables, canvas::{self, Align}};
-use ptsd::utils::ValidationFn;
-use crate::components::button::PrimaryButton;
-use crate::components::button::SecondaryButton;
-use crate::components::text::ExpandableText;
-use crate::canvas::{RgbaImage, Image, ShapeType, Shape};
-use crate::interface::general::{Page, Content, Header, Bumper, Interface};
+use crate::components::Rectangle;
+use prism::{Request, Context, drawables};
+use crate::interface::general::{Page, Content, Header, Bumper};
 use crate::interface::navigation::AppPage;
-use crate::interface::navigation::{Flow, FlowContainer};
-use crate::interface::navigation::NavigationEvent;
-use crate::interface::navigation::RootInfo;
 use crate::theme::Theme;
-use crate::classes::{Story, Level, Language, Word};
+use crate::classes::Word;
 use crate::components::language::WordCard;
+use crate::interface::navigation::NavigationEvent;
 use ptsd::colors;
+
+use crate::pages::definition::WordDefinitionFlow;
 
 #[derive(Debug, Component, Clone)]
 pub struct NewWord(Stack, Page);
@@ -32,7 +25,10 @@ impl NewWord {
         let divider = Bin(Stack::new(Offset::Center, Offset::Center, Size::Fill, Size::Static(1.0), Padding::default()), Rectangle::new(theme.colors().get(colors::Outline::Primary), 0.0, None));
         let content = Content::new(Offset::Start, drawables![foreign, divider, local], Box::new(|_| true));
         let header = Header::stack(theme, "New word", None);
-        let bumper = Bumper::stack(theme, Some("OK"), Box::new(|ctx: &mut Context, theme: &Theme| {}), None);
+        let bumper = Bumper::stack(theme, Some("OK"), Box::new(|_ctx: &mut Context, _theme: &Theme| {}), Some(("More".to_string(), Box::new(move |ctx: &mut Context, theme: &Theme| {
+            let flow = WordDefinitionFlow::new(theme, word.clone());
+            ctx.send(Request::event(NavigationEvent::push(flow)))
+        }))));
         let page = Page::new(header, content, Some(bumper));
         Self(Stack::default(), page)
     }

@@ -1,21 +1,11 @@
-use prism::layout::{Area, SizeRequest, Size, Offset, Layout, Padding, Stack, Wrap, Row};
+use prism::layout::{Size, Offset, Padding, Stack};
 use prism::display::Bin;
-use prism::event::{OnEvent, Event};
+use prism::event::OnEvent;
 use prism::drawable::{Component, Drawable};
-use crate::components::button::ButtonSize;
-use crate::components::text::{TextStyle, Text, TextSize};
-use crate::components::{Rectangle, TextInput};
-use prism::{Request, Context, drawables, canvas::{self, Align}};
-use ptsd::utils::ValidationFn;
-use crate::components::button::PrimaryButton;
-use crate::components::button::SecondaryButton;
-use crate::components::text::ExpandableText;
-use crate::canvas::{RgbaImage, Image, ShapeType, Shape};
-use crate::interface::general::{Page, Content, Header, Bumper, Interface};
+use crate::components::Rectangle;
+use prism::Context;
+use crate::interface::general::{Page, Content, Header, Bumper};
 use crate::interface::navigation::AppPage;
-use crate::interface::navigation::{Flow, FlowContainer};
-use crate::interface::navigation::NavigationEvent;
-use crate::interface::navigation::RootInfo;
 use crate::components::language::StorySentence;
 
 use crate::classes::{Story, Level, Language};
@@ -38,7 +28,7 @@ impl SmallStory {
 
         let content = Content::new(Offset::Start, content, Box::new(|_| true));
         let header = Header::stack(theme, "Small story", None);
-        let bumper = Bumper::stack(theme, Some("Continue"), Box::new(|ctx: &mut Context, theme: &Theme| {}), None);
+        let bumper = Bumper::stack(theme, Some("Continue"), Box::new(|_ctx: &mut Context, _theme: &Theme| {}), None);
         let page = Page::new(header, content, Some(bumper));
         Self(Stack::default(), page)
     }
