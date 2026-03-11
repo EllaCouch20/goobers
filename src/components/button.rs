@@ -52,7 +52,7 @@ impl PrimaryButton {
         
         let theme = theme.clone();
         let callback = Box::new(move |ctx: &mut Context| (on_click)(ctx, &theme));
-        PrimaryButton(Stack::default(), interactions::Button::new(default, Some(hover), Some(pressed), Some(disabled), callback, true))
+        PrimaryButton(Stack::default(), interactions::Button::new_triggers_on_release(default, Some(hover), Some(pressed), Some(disabled), callback, true))
     }
 
     pub fn default(theme: &Theme) -> Self { 
@@ -82,7 +82,7 @@ impl SecondaryButton {
 
         let theme = theme.clone();
         let callback = Box::new(move |ctx: &mut Context| (on_click)(ctx, &theme));
-        SecondaryButton(Stack::default(), interactions::Button::new(default, Some(hover), Some(pressed), Some(disabled), callback, false))
+        SecondaryButton(Stack::default(), interactions::Button::new_triggers_on_release(default, Some(hover), Some(pressed), Some(disabled), callback, false))
     }
 
     fn _medium(theme: &Theme, icon: Option<&str>, label: &str, colors: ButtonColorScheme, pressed: bool) -> Button {
@@ -104,7 +104,7 @@ impl SecondaryButton {
 
         let theme = theme.clone();
         let callback = Box::new(move |ctx: &mut Context| (on_click)(ctx, &theme));
-        SecondaryButton(Stack::default(), interactions::Button::new(default, Some(hover), Some(pressed), Some(disabled), callback, false))
+        SecondaryButton(Stack::default(), interactions::Button::new_triggers_on_release(default, Some(hover), Some(pressed), Some(disabled), callback, false))
     }
 
     pub fn default(theme: &Theme) -> Self { 
@@ -135,7 +135,7 @@ impl SecondaryIconButton {
 
         let theme = theme.clone();
         let callback = Box::new(move |ctx: &mut Context| (on_click)(ctx, &theme));
-        SecondaryIconButton(Stack::default(), interactions::Button::new(default, Some(hover), Some(pressed), Some(disabled), callback, false))
+        SecondaryIconButton(Stack::default(), interactions::Button::new_triggers_on_release(default, Some(hover), Some(pressed), Some(disabled), callback, false))
     }
 
     pub fn medium(theme: &Theme, icon: &str, mut on_click: impl FnMut(&mut Context, &Theme) + Clone + 'static) -> Self {
@@ -147,7 +147,7 @@ impl SecondaryIconButton {
 
         let theme = theme.clone();
         let callback = Box::new(move |ctx: &mut Context| (on_click)(ctx, &theme));
-        SecondaryIconButton(Stack::default(), interactions::Button::new(default, Some(hover), Some(pressed), Some(disabled), callback, false))
+        SecondaryIconButton(Stack::default(), interactions::Button::new_triggers_on_release(default, Some(hover), Some(pressed), Some(disabled), callback, false))
     }
 
     pub fn default(theme: &Theme) -> Self { 
@@ -178,7 +178,7 @@ impl GhostIconButton {
 
         let theme = theme.clone();
         let callback = Box::new(move |ctx: &mut Context| (on_click)(ctx, &theme));
-        GhostIconButton(Stack::default(), interactions::Button::new(default, Some(hover), Some(pressed), Some(disabled), callback, false))
+        GhostIconButton(Stack::default(), interactions::Button::new_triggers_on_release(default, Some(hover), Some(pressed), Some(disabled), callback, false))
     }
 
     pub fn default(theme: &Theme) -> Self { 
